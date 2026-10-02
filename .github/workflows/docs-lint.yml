@@ -78,6 +78,11 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest \
             detect --source /repo --redact --verbose
+      - name: trufflehog
+        run: |
+          printf '%s\n' '(^|/)\.git/' > "$RUNNER_TEMP/trufflehog-exclude.txt"
+          docker run --rm -v "$PWD:/repo" -v "$RUNNER_TEMP:/cfg" trufflesecurity/trufflehog:latest \
+            filesystem /repo --exclude-paths=/cfg/trufflehog-exclude.txt --results=verified,unknown --fail --no-update
       - uses: actions/setup-node@v4
         with:
           node-version: 22
