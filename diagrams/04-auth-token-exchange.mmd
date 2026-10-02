@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant U as User
+  participant C as Web or Mobile
+  participant FB as Firebase Auth
+  participant API as Flame API
+  participant SM as Secrets Manager
+  U->>C: Sign in (verified email or Google)
+  C->>FB: authenticate
+  FB-->>C: Firebase ID token
+  C->>API: exchange ID token
+  API->>SM: read cached Google signing certs
+  API->>API: verify signature, audience, issuer, expiry
+  API->>API: find user by identity or provision
+  API-->>C: Flame JWT (subject only)
+  C->>C: persist via injected token store
+  C->>API: GET current user
+  API->>API: reload user and role from DB
+  API-->>C: profile and role
+  Note over C,API: Later requests carry the Flame JWT
+  API-->>C: 401 when invalid or expired
+  C->>C: clear token, route to login

@@ -1,0 +1,25 @@
+sequenceDiagram
+  participant MR as MatchReportService
+  participant DS as DisciplineService
+  participant PR as Effective policy rules
+  participant YT as Season yellow tally
+  participant SAN as Player sanctions
+  participant OS as ObligationService
+  participant AUD as Finance audit log
+  MR->>DS: report submitted with card events
+  DS->>PR: discipline and fee rules for season
+  loop each card event
+    alt second yellow in same match and rule enabled
+      DS->>SAN: red-card sanction (idempotent per event)
+    else straight red
+      DS->>SAN: red-card sanction, N matches incl. current
+    else yellow
+      DS->>YT: increment tally
+      opt tally reaches threshold
+        DS->>SAN: accumulation sanction
+      end
+    end
+    DS->>OS: card fine billed to team or player (source ref = event)
+    OS->>AUD: CREATE entry
+  end
+  Note over SAN: Covered fixtures consumed as matches pass, lineups reject active sanctions

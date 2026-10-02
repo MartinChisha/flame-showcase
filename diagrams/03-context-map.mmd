@@ -1,0 +1,35 @@
+flowchart TB
+  Core["Core - identity"]
+  League["League"]
+  Team["Team"]
+  Player["Player"]
+  Competition["Competition"]
+  Match["Match"]
+  Referee["Referee"]
+  Policy["Policy"]
+  Ops["Operations"]
+  Finance["Finance and Discipline"]
+  Market["Marketplace"]
+  Survey["Survey"]
+  Core --> League
+  Core --> Team
+  Core --> Referee
+  Core --> Market
+  League --> Team
+  League --> Competition
+  Team --> Player
+  Competition --> Match
+  Team --> Match
+  Player --> Match
+  League --> Referee
+  Competition --> Referee
+  League --> Policy
+  Competition --> Policy
+  Player --> Policy
+  Policy --> Finance
+  Match --> Finance
+  Competition --> Ops
+  Match --> Ops
+  Referee --> Ops
+  Policy --> Ops
+  Core -.-> Survey

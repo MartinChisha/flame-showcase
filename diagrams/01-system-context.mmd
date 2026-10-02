@@ -1,0 +1,16 @@
+flowchart TB
+  subgraph people [People]
+    Admin["Association and league admins"]
+    Manager["Team managers"]
+    Ref["Referees and branch admins"]
+    Member["Members and the public"]
+  end
+  Flame["Flame platform - web, mobile, API"]
+  Firebase["Firebase Authentication"]
+  Email["AWS SES - transactional email"]
+  Admin --> Flame
+  Manager --> Flame
+  Ref --> Flame
+  Member --> Flame
+  Flame -->|"verify ID tokens"| Firebase
+  Flame -->|"optional notifications"| Email

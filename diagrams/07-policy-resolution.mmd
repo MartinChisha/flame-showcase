@@ -1,0 +1,24 @@
+flowchart LR
+  subgraph authoring [Authoring]
+    Draft["League policy pack - draft rules"]
+    Publish["Publish - version n+1"]
+    DivB["Division binding - inherit or override"]
+    SeaB["Season binding - inherit or override"]
+  end
+  subgraph resolution [Resolution]
+    Effective["Effective rule set for season"]
+  end
+  subgraph evaluation [Evaluation per team]
+    Rules["Rule evaluators - squad size, contracts, documents, photos, deadlines, fees"]
+    Result["Check results - met, unmet, waived, not applicable"]
+    Cache["Team season readiness snapshot"]
+  end
+  Gate{"All blocking checks met?"}
+  Start["Season may start"]
+  Block["Start rejected with reasons"]
+  Draft --> Publish --> Effective
+  DivB --> Effective
+  SeaB --> Effective
+  Effective --> Rules --> Result --> Cache --> Gate
+  Gate -->|yes| Start
+  Gate -->|no| Block

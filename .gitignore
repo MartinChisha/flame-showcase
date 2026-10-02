@@ -1,0 +1,29 @@
+# Dependencies and build output for the runnable samples
+node_modules/
+dist/
+out/
+*.class
+*.tsbuildinfo
+
+# Never commit environment files, keys, or local deny-lists
+.env
+.env.*
+*.pem
+*.key
+*service-account*.json
+.redaction-denylist*
+denylist*.txt
+
+# Terraform local state (samples are never applied)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursor/
+*.log

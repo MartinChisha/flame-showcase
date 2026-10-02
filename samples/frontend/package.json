@@ -1,0 +1,25 @@
+{
+  "name": "flame-showcase-frontend-samples",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Clean-room illustrations of Flame frontend patterns. Type-checked in CI; not an application.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.0",
+    "@tanstack/react-query": "^5.90.0",
+    "axios": "^1.12.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.62.0",
+    "react-router-dom": "^7.9.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "~5.9.2"
+  }
+}

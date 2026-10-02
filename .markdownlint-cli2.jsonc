@@ -1,0 +1,14 @@
+{
+  "config": {
+    "default": true,
+    // Long prose lines and tables are intentional.
+    "MD013": false,
+    // README hero uses centred HTML.
+    "MD033": false,
+    "MD041": false,
+    // Domain docs reuse section headings such as "Model".
+    "MD024": { "siblings_only": true },
+    "MD060": false
+  },
+  "ignores": ["**/node_modules/**"]
+}

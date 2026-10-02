@@ -1,0 +1,12 @@
+stateDiagram-v2
+  [*] --> Live
+  Live --> Hibernated: terraform apply hibernate=true
+  Hibernated --> Live: terraform apply hibernate=false + restore snapshot
+  state Live {
+    [*] --> Serving
+    Serving: ALB, ECS task, RDS, VPC endpoints, alarms, jump host
+  }
+  state Hibernated {
+    [*] --> Parked
+    Parked: ECS at 0, RDS final snapshot, maintenance function attached, marketing pages still served
+  }

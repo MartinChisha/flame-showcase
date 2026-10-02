@@ -1,0 +1,13 @@
+stateDiagram-v2
+  [*] --> Pending: created from policy, card or manual charge
+  Pending --> Partial: payment less than outstanding
+  Pending --> Paid: payment covers outstanding
+  Pending --> Waived: admin waiver with reason
+  Pending --> Overdue: past due date
+  Partial --> Paid
+  Partial --> Waived
+  Partial --> Overdue
+  Overdue --> Paid
+  Overdue --> Waived
+  Paid --> [*]
+  Waived --> [*]

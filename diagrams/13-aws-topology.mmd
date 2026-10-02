@@ -1,0 +1,40 @@
+flowchart TB
+  User["Browser or mobile app"]
+  subgraph edge [Edge]
+    R53["Route 53"]
+    CF["CloudFront + ACM"]
+    CFF["CloudFront Function - maintenance mode"]
+  end
+  subgraph vpc [VPC]
+    subgraph publicNet [Public subnets]
+      ALB["Application Load Balancer"]
+    end
+    subgraph privateNet [Private subnets - no NAT]
+      ECS["ECS Fargate - API"]
+      RDS[("RDS PostgreSQL 16")]
+      EFS[("EFS uploads")]
+      Jump["SSM jump host"]
+      VPCE["Interface VPC endpoints"]
+    end
+    S3GW["S3 gateway endpoint"]
+  end
+  S3Web["S3 SPA bucket - private, OAC"]
+  ECR["ECR"]
+  SM["Secrets Manager"]
+  CW["CloudWatch"]
+  Lambda["Cert refresh Lambda"]
+  User --> R53
+  R53 --> CF
+  CF --> S3Web
+  CF -.-> CFF
+  R53 --> ALB
+  ALB --> ECS
+  ECS --> RDS
+  ECS --> EFS
+  ECS --> VPCE
+  ECS --> S3GW
+  VPCE --> SM
+  VPCE --> ECR
+  VPCE --> CW
+  Lambda --> SM
+  Jump --> RDS

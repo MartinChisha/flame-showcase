@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant UI as Screen
+  participant Hook as shared-hooks
+  participant Client as shared-api
+  participant Filter as JwtAuthenticationFilter
+  participant Ctrl as Controller
+  participant Svc as Domain service
+  participant DB as PostgreSQL
+  UI->>Hook: useQuery or useMutation
+  Hook->>Client: typed domain call
+  Client->>Filter: HTTPS + Bearer token
+  Filter->>Filter: verify, load user, map role
+  Filter->>Ctrl: SecurityContext
+  Ctrl->>Ctrl: PreAuthorize role rule
+  Ctrl->>Svc: command or query DTO
+  Svc->>Svc: row-level scope check
+  Svc->>DB: repositories
+  DB-->>Svc: entities
+  Svc-->>UI: response DTO, cached by React Query

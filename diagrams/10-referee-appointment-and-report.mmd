@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant BA as Branch admin
+  participant RAS as RefereeAssignmentService
+  participant ACC as Branch fee accruals
+  participant N as NotificationService
+  participant R as Referee
+  participant MR as MatchReportService
+  BA->>RAS: appoint referee as MAIN for fixture
+  RAS->>RAS: verify branch serves fixture's league and division
+  RAS->>RAS: replace any existing MAIN assignment
+  RAS->>ACC: snapshot match fee for role
+  RAS->>N: notify referee
+  N-->>R: new appointment
+  R->>R: acknowledge appointment
+  Note over R: Match day
+  R->>MR: create report, add events by minute
+  R->>MR: submit report
+  MR->>ACC: snapshot card fees as branch revenue
+  MR-->>R: standings, statistics, discipline updated

@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant LA as League admin
+  participant UI as Match-week panel
+  participant MWR as MatchWeekReadinessService
+  participant CMP as Competition
+  participant REF as Referee
+  participant MAT as Match
+  participant SET as Schedule settings
+  LA->>UI: open season, select week 7
+  UI->>MWR: readiness for week 7
+  MWR->>SET: week window, deadlines
+  MWR->>CMP: fixtures in week 7
+  loop each fixture
+    MWR->>CMP: date set, date inside window
+    MWR->>REF: main referee appointed
+    MWR->>MAT: home and away lineups submitted
+    MWR->>MAT: report submitted and verified
+  end
+  MWR->>CMP: next week dated
+  MWR-->>UI: checks per fixture, blockers, progress percent
+  UI-->>LA: animated readiness bar, deep links to fix each blocker

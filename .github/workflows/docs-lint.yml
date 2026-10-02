@@ -1,0 +1,94 @@
+name: Docs, samples and secret scan
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  markdown:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: |
+            **/*.md
+            !**/node_modules/**
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Relative links and anchors resolve
+        run: node scripts/check-links.mjs
+      - name: Diagram index matches the .mmd sources
+        run: node scripts/build-diagram-index.mjs && git diff --exit-code -- diagrams/README.md
+
+  mermaid:
+    name: Render Mermaid diagrams
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Render every diagram
+        run: |
+          npm install -g @mermaid-js/mermaid-cli@11
+          echo '{"args":["--no-sandbox"]}' > /tmp/puppeteer.json
+          mkdir -p /tmp/rendered
+          for f in diagrams/*.mmd; do
+            mmdc -p /tmp/puppeteer.json -i "$f" -o "/tmp/rendered/$(basename "$f" .mmd).svg"
+          done
+
+  samples:
+    name: Build and test code samples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Type-check frontend samples
+        working-directory: samples/frontend
+        run: npm install --no-audit --no-fund && npx tsc --noEmit
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Compile and test backend samples
+        working-directory: samples/backend
+        run: ./run-tests.sh
+      - uses: hashicorp/setup-terraform@v3
+      - name: Validate Terraform sample
+        working-directory: samples/infra/terraform
+        run: terraform fmt -check -recursive && terraform init -backend=false && terraform validate
+
+  secrets:
+    name: Secret and redaction scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest \
+            detect --source /repo --redact --verbose
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Redaction check (private deny-list from repository secret)
+        env:
+          REDACTION_DENYLIST: ${{ secrets.REDACTION_DENYLIST }}
+        run: |
+          if [ -z "$REDACTION_DENYLIST" ]; then
+            echo "::warning::REDACTION_DENYLIST secret not set; running generic rules only"
+            node scripts/redaction-check.mjs
+          else
+            printf '%s\n' "$REDACTION_DENYLIST" > "$RUNNER_TEMP/denylist.txt"
+            node scripts/redaction-check.mjs --denylist "$RUNNER_TEMP/denylist.txt"
+          fi

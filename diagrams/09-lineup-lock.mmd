@@ -1,0 +1,13 @@
+flowchart TD
+  Edit["Team manager saves or submits lineup"] --> L1{"Status already locked?"}
+  L1 -->|yes| Reject["Reject - lineup locked"]
+  L1 -->|no| L2{"Fixture already played?"}
+  L2 -->|yes| Persist["Persist locked status"] --> Reject
+  L2 -->|no| L3{"Kick-off passed?"}
+  L3 -->|yes| Persist
+  L3 -->|no| L4{"Submitted and inside deadline window before kick-off?"}
+  L4 -->|yes| Persist
+  L4 -->|no| Elig{"Any selected player suspended or blocked?"}
+  Elig -->|yes| RejectP["Reject - list ineligible players"]
+  Elig -->|no| Save["Save draft or submit"]
+  Save --> Inv["Invalidate match-week readiness views"]

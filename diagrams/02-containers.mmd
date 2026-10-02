@@ -1,0 +1,35 @@
+flowchart TB
+  subgraph clients [Client applications]
+    Web["Web SPA - React 19, Vite 8, Tailwind 4"]
+    Mobile["Mobile - Expo 54, React Native 0.81"]
+  end
+  subgraph shared [Shared TypeScript packages]
+    Types["shared-types"]
+    Api["shared-api"]
+    Hooks["shared-hooks"]
+    Stores["shared-stores"]
+    Marketing["shared-marketing"]
+  end
+  subgraph backend [API - modular monolith]
+    Sec["Spring Security + JWT filter"]
+    Spring["Spring Boot 4.1 / Java 21 - 12 domain modules"]
+    Jobs["Scheduled jobs"]
+    JPA["Spring Data JPA"]
+  end
+  DB[("PostgreSQL 16 - schema per context")]
+  Files[("Upload storage")]
+  Web --> Hooks
+  Mobile --> Hooks
+  Web --> Stores
+  Mobile --> Stores
+  Web --> Marketing
+  Mobile --> Marketing
+  Hooks --> Api
+  Stores --> Api
+  Api --> Types
+  Api -->|"HTTPS, Bearer JWT"| Sec
+  Sec --> Spring
+  Spring --> JPA
+  Jobs --> JPA
+  JPA --> DB
+  Spring --> Files

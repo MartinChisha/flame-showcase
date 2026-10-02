@@ -1,0 +1,34 @@
+# Production image pattern for a Spring Boot / Java 21 service.
+#   docker build -f Dockerfile.api -t flame-api:$(git rev-parse --short HEAD) .
+# Configuration arrives only through environment variables at runtime.
+
+# --- build ------------------------------------------------------------------
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
+WORKDIR /build
+COPY pom.xml .
+RUN mvn -B -q dependency:go-offline
+COPY src ./src
+RUN mvn -B -DskipTests package \
+ && cp "$(ls target/*.jar | grep -v '\.original$' | head -1)" /build/app.jar
+
+# --- runtime ----------------------------------------------------------------
+FROM eclipse-temurin:21-jre-alpine
+
+RUN apk add --no-cache curl \
+ && addgroup -S app && adduser -S app -G app \
+ && mkdir -p /app/uploads && chown -R app:app /app
+
+WORKDIR /app
+COPY --from=build --chown=app:app /build/app.jar /app/app.jar
+USER app:app
+
+EXPOSE 8080
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0" \
+    FILE_UPLOAD_DIR=/app/uploads \
+    SPRING_JPA_HIBERNATE_DDL_AUTO=none \
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
+  CMD curl -fsS http://127.0.0.1:8080/actuator/health || exit 1
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

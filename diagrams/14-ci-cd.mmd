@@ -1,0 +1,17 @@
+flowchart LR
+  subgraph api [API pipeline]
+    A1["PR or push"] --> A2["mvn test"]
+    A2 -->|"main"| A3["OIDC deploy role"]
+    A3 --> A4{"Image for SHA in ECR?"}
+    A4 -->|no| A5["docker build and push"]
+    A4 -->|yes| A6["Render task definition"]
+    A5 --> A6
+    A6 --> A7["Deploy ECS service, wait for stability"]
+  end
+  subgraph web [Web pipeline]
+    W1["Change in web or shared packages"] --> W2["npm ci + typecheck"]
+    W2 --> W3["Vite build"]
+    W3 -->|"main"| W4["OIDC deploy role"]
+    W4 --> W5["S3 sync"]
+    W5 --> W6["CloudFront invalidation"]
+  end

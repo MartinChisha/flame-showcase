@@ -1,0 +1,13 @@
+stateDiagram-v2
+  [*] --> Draft: league admin creates season
+  Draft --> FixturesGenerated: generate round-robin (>= 2 active teams)
+  FixturesGenerated --> FixturesGenerated: regenerate or auto-schedule
+  FixturesGenerated --> InProgress: start season
+  note right of InProgress
+    Server-side gate - policy readiness must pass
+    for every team, including paid or waived
+    participation fees
+  end note
+  InProgress --> Completed: all match weeks played
+  Completed --> Archived
+  Archived --> [*]
